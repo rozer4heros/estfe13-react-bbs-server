@@ -1,8 +1,13 @@
 const express = require("express");
 const cors = require("cors");
+const json = require("body-parser/json");
+const urlencoded = require("body-parser/urlencoded");
 const mysql = require("mysql2");
 const app = express();
 const port = 3000;
+
+app.use(express.json());
+app.use(express.urlencoded()); // json -> object
 
 const corsOptions = {
   origin: "*",
@@ -32,6 +37,18 @@ app.get("/list", (req, res) => {
   });
 });
 
+app.post("/write", (req, res) => {
+  const { title, content, name } = req.body;
+  /* 보안에 취약함! */
+  // const sqlQuery = `insert into board (title, content, writer) values(${title},${content},${name});`;
+  const sqlQuery = "insert into board (title, content, writer) values(?,?,?);";
+  db.query(sqlQuery, [title, content, name], (err, result) => {
+    if (err) throw err;
+    res.send(result);
+  });
+  console.log(req.body);
+});
+
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+  console.log(`react-bbs-server listening on port ${port}`);
 });
