@@ -25,7 +25,7 @@ app.get("/", (req, res) => {
 // "/"(루트)로 요청이 get으로 들어오면 res.send()의 인자를 반환
 
 app.get("/list", (req, res) => {
-  const sqlQuery = "SELECT * FROM board";
+  const sqlQuery = "SELECT id, title, content, writer, DATE_FORMAT(date, '%Y-%m-%d') AS date FROM board";
   db.query(sqlQuery, (err, result) => {
     if (err) throw err;
     res.send(result);
