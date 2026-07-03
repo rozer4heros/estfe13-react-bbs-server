@@ -1,13 +1,15 @@
 const express = require("express");
 const cors = require("cors");
+const mysql = require("mysql2");
+
 const json = require("body-parser/json");
 const urlencoded = require("body-parser/urlencoded");
-const mysql = require("mysql2");
+
 const app = express();
 const port = 3000;
 
-app.use(express.json());
-app.use(express.urlencoded()); // json -> object
+app.use(express.json()); // json -> object
+app.use(express.urlencoded()); // html form -> object
 
 const corsOptions = {
   origin: "*",
