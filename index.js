@@ -77,11 +77,12 @@ app.post("/update", (req, res) => {
   });
 });
 
+// 게시물 삭제
 app.post("/delete", (req, res) => {
   console.log(`request: ${req.body}`);
   const { id } = req.body;
-  const sqlQuery = "DELETE FROM board WHERE id=?;";
-  db.query(sqlQuery, [id], (err, result) => {
+  const sqlQuery = `DELETE FROM board WHERE id IN (${id});`;
+  db.query(sqlQuery, (err, result) => {
     if (err) throw err;
     res.send(result);
   });
