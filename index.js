@@ -77,6 +77,16 @@ app.post("/update", (req, res) => {
   });
 });
 
+app.post("/delete", (req, res) => {
+  console.log(`request: ${req.body}`);
+  const { id } = req.body;
+  const sqlQuery = "DELETE FROM board WHERE id=?;";
+  db.query(sqlQuery, [id], (err, result) => {
+    if (err) throw err;
+    res.send(result);
+  });
+});
+
 app.listen(port, () => {
   console.log(`react-bbs-server listening on port ${port}`);
 });
