@@ -1,5 +1,7 @@
 const express = require("express");
 const cors = require("cors");
+const fs = require("fs");
+const path = require("path");
 const mysql = require("mysql2");
 
 const json = require("body-parser/json");
@@ -40,6 +42,15 @@ const db = mysql.createConnection({
 });
 
 db.connect();
+
+function deleteUploadedFile(filePath) {
+  if (!filePath) return;
+
+  const absolutePath = path.resolve(filePath);
+  if (fs.existsSync(absolutePath)) {
+    fs.unlinkSync(absolutePath);
+  }
+}
 
 // Test
 app.get("/", (req, res) => {
@@ -112,6 +123,13 @@ app.post("/update", upload.single("image"), (req, res) => {
 app.post("/delete", (req, res) => {
   console.log(`Delete request: `, req.body);
   const { id } = req.body;
+
+  let path;
+  db.query("SELECT image_path FROM board WHERE id=?;", [id], (err, result) => {
+    if (err) throw err;
+    const existingImagePath = result[0] ? result[0].image_path : null;
+    deleteUploadedFile(existingImagePath);
+  });
 
   const sqlQuery = "DELETE FROM board WHERE id=?;";
   db.query(sqlQuery, [id], (err, result) => {
