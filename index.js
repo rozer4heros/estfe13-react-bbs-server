@@ -12,6 +12,9 @@ const port = 3000;
 app.use(express.json()); // json -> object
 app.use(express.urlencoded()); // html form -> object
 
+// "/uploads"로 접속 시 "uploads"폴더에 접근 권한 부여
+app.use("/uploads", express.static("uploads"));
+
 const corsOptions = {
   origin: "*", // 와일드카드 *, 모든 도메인에서의 접근 허용
 };
