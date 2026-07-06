@@ -57,8 +57,9 @@ app.get("/list", (req, res) => {
 app.get("/view", (req, res) => {
   console.log(`View request: ${req.query.id}`);
   const { id } = req.query;
-  // const sqlQuery = `SELECT id, title, content, writer, DATE_FORMAT(date, '%Y-%m-%d') AS date FROM board WHERE id=${id}`;
-  const sqlQuery = "SELECT id, title, content, writer, DATE_FORMAT(date, '%Y-%m-%d') AS date FROM board WHERE id=?";
+
+  const sqlQuery =
+    "SELECT id, title, content, writer, image_path, DATE_FORMAT(date, '%Y-%m-%d') AS date FROM board WHERE id=?";
   db.query(sqlQuery, [id], (err, result) => {
     if (err) throw err;
     res.send(result);
@@ -70,8 +71,7 @@ app.post("/write", upload.single("image"), (req, res) => {
   console.log(`Write request: `, req.body);
   const { title, content, writer } = req.body;
   const imagePath = req.file ? req.file.path : null;
-  /* 보안에 취약함! */
-  // const sqlQuery = `INSERT INTO board (title, content, writer) values(${title},${content},${name});`;
+
   const sqlQuery = "INSERT INTO board (title, content, writer, image_path) values(?,?,?,?);";
   db.query(sqlQuery, [title, content, writer, imagePath], (err, result) => {
     if (err) throw err;
@@ -84,6 +84,7 @@ app.post("/update", upload.single("image"), (req, res) => {
   console.log(`Update request: `, req.body);
   const { title, content, writer, id } = req.body;
   const imagePath = req.file ? req.file.path : null;
+
   const sqlQuery = "UPDATE board SET title=?, content=?, writer=?, image_path=? WHERE id=?;";
   db.query(sqlQuery, [title, content, writer, imagePath, id], (err, result) => {
     if (err) throw err;
@@ -95,6 +96,7 @@ app.post("/update", upload.single("image"), (req, res) => {
 app.post("/delete", (req, res) => {
   console.log(`Delete request: `, req.body);
   const { id } = req.body;
+
   const sqlQuery = "DELETE FROM board WHERE id=?;";
   db.query(sqlQuery, [id], (err, result) => {
     if (err) throw err;
