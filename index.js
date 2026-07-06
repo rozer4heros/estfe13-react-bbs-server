@@ -85,11 +85,24 @@ app.post("/write", upload.single("image"), (req, res) => {
 // 게시물 수정
 app.post("/update", upload.single("image"), (req, res) => {
   console.log(`Update request: `, req.body);
-  const { title, content, writer, id } = req.body;
+  const { title, content, writer, id, remove_image } = req.body;
   const imagePath = req.file ? req.file.path : null;
 
-  const sqlQuery = "UPDATE board SET title=?, content=?, writer=?, image_path=? WHERE id=?;";
-  db.query(sqlQuery, [title, content, writer, imagePath, id], (err, result) => {
+  let sqlQuery;
+  let params;
+
+  if (remove_image && !imagePath) {
+    sqlQuery = "UPDATE board SET title=?, content=?, writer=?, image_path=NULL WHERE id=?";
+    params = [title, content, writer, id];
+  } else if (imagePath) {
+    sqlQuery = "UPDATE board SET title=?, content=?, writer=?, image_path=? WHERE id=?";
+    params = [title, content, writer, imagePath, id];
+  } else {
+    sqlQuery = "UPDATE board SET title=?, content=?, writer=? WHERE id=?";
+    params = [title, content, writer, id];
+  }
+
+  db.query(sqlQuery, params, (err, result) => {
     if (err) throw err;
     res.send(result);
   });
