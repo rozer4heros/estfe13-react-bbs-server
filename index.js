@@ -103,6 +103,13 @@ app.post("/update", upload.single("image"), (req, res) => {
   let params;
 
   if (remove_image && !imagePath) {
+    // 글 번호 삭제할 이미지의 경로 파악
+    db.query("SELECT image_path FROM board WHERE id=?;", [id], (err, result) => {
+      if (err) throw err;
+      const existingImagePath = result[0] ? result[0].image_path : null;
+      deleteUploadedFile(existingImagePath);
+    });
+
     sqlQuery = "UPDATE board SET title=?, content=?, writer=?, image_path=NULL WHERE id=?";
     params = [title, content, writer, id];
   } else if (imagePath) {
@@ -124,7 +131,7 @@ app.post("/delete", (req, res) => {
   console.log(`Delete request: `, req.body);
   const { id } = req.body;
 
-  let path;
+  // 글 번호 삭제할 이미지의 경로 파악
   db.query("SELECT image_path FROM board WHERE id=?;", [id], (err, result) => {
     if (err) throw err;
     const existingImagePath = result[0] ? result[0].image_path : null;
@@ -133,6 +140,28 @@ app.post("/delete", (req, res) => {
 
   const sqlQuery = "DELETE FROM board WHERE id=?;";
   db.query(sqlQuery, [id], (err, result) => {
+    if (err) throw err;
+    res.send(result);
+  });
+});
+
+// 선택된 게시물 일괄 삭제
+app.post("/deleteselect", (req, res) => {
+  console.log(`Delete Selected request`, req.body);
+  const { boardIdList } = req.body;
+
+  // 글 번호 삭제할 이미지의 경로 파악
+  db.query(`SELECT image_path FROM board WHERE id in (${boardIdList});`, (err, result) => {
+    if (err) throw err;
+    if (result && result.length > 0) {
+      result.forEach((item) => {
+        deleteUploadedFile(item.image_path);
+      });
+    }
+  });
+
+  const sqlQuery = `DELETE FROM board WHERE id IN (${boardIdList})`;
+  db.query(sqlQuery, (err, result) => {
     if (err) throw err;
     res.send(result);
   });
