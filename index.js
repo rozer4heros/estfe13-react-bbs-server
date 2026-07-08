@@ -37,7 +37,8 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 const db = mysql.createConnection({
   host: "localhost",
-  user: "root",
+  // user: "root",
+  user: "rozer4heros",
   password: "mynameisytg4$",
   database: "bbs",
 });
@@ -85,7 +86,7 @@ app.get("/view", (req, res) => {
 app.post("/write", upload.single("image"), (req, res) => {
   console.log(`Write request: `, req.body);
   const { title, content, writer } = req.body;
-  const imagePath = req.file ? req.file.path : null;
+  const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
 
   const sqlQuery = "INSERT INTO board (title, content, writer, image_path) values(?,?,?,?);";
   db.query(sqlQuery, [title, content, writer, imagePath], (err, result) => {
@@ -98,7 +99,7 @@ app.post("/write", upload.single("image"), (req, res) => {
 app.post("/update", upload.single("image"), (req, res) => {
   console.log(`Update request: `, req.body);
   const { title, content, writer, id, remove_image } = req.body;
-  const imagePath = req.file ? req.file.path : null;
+  const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
 
   let sqlQuery;
   let params;
