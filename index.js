@@ -9,13 +9,14 @@ const urlencoded = require("body-parser/urlencoded");
 const multer = require("multer");
 
 const app = express();
-const port = 3000;
+// 외부에서 주입된 환경변수가 있다면 사용, 없으면 기본값 3000
+const port = process.env.PORT || 3000;
 
 app.use(express.json()); // json -> object
 app.use(express.urlencoded()); // html form -> object
 
-// "/uploads"로 접속 시 "uploads"폴더에 접근 권한 부여
-app.use("/uploads", express.static("uploads"));
+// "/uploads"로 접속 시 절대경로 "uploads"폴더에 접근 권한 부여
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 const corsOptions = {
   origin: "*", // 와일드카드 *, 모든 도메인에서의 접근 허용
@@ -25,7 +26,7 @@ app.use(cors(corsOptions));
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploads/");
+    cb(null, path.join(__dirname, "uploads"));
   },
   filename: function (req, file, cb) {
     const originalExt = file.originalname.split(".")[1];
